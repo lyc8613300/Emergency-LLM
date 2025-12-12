@@ -732,13 +732,15 @@ def list_configs():
 
 
 if __name__ == '__main__':
-    print("="*60)
-    print("Emergency-LLM 微调API服务器")
-    print("="*60)
-    print(f"访问地址: http://localhost:5000")
-    print(f"配置目录: {os.path.abspath(CONFIG_DIR)}")
-    print(f"输出目录: {os.path.abspath(OUTPUT_DIR)}")
-    print("="*60)
+    # 仅在主进程中打印启动信息（避免 debug 模式下重复打印）
+    if os.environ.get('WERKZEUG_RUN_MAIN') == 'true':
+        print("="*60)
+        print("Emergency-LLM 微调API服务器")
+        print("="*60)
+        print(f"访问地址: http://localhost:5000")
+        print(f"配置目录: {os.path.abspath(CONFIG_DIR)}")
+        print(f"输出目录: {os.path.abspath(OUTPUT_DIR)}")
+        print("="*60)
     
     app.run(
         host='0.0.0.0',

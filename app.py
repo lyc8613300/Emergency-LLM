@@ -298,21 +298,23 @@ def internal_error(error):
 
 
 if __name__ == '__main__':
-    print("=" * 70)
-    print("应急智能体 Web API 服务启动中...")
-    print("=" * 70)
-    print("本地访问:")
-    print(f"  前端页面: http://localhost:5001")
-    print(f"  API 接口: http://localhost:5001/getMessageWeb")
-    print(f"  健康检查: http://localhost:5001/health")
-    print("-" * 70)
-    print("外网访问:")
-    print(f"  前端页面: http://218.199.69.58:5001")
-    print(f"  API 接口: http://218.199.69.58:5001/getMessageWeb")
-    print(f"  健康检查: http://218.199.69.58:5001/health")
-    print("=" * 70)
-    print("注意: 如果外网无法访问，请检查防火墙是否开放5001端口")
-    print("=" * 70)
+    # 仅在主进程中打印启动信息（避免 debug 模式下重复打印）
+    if os.environ.get('WERKZEUG_RUN_MAIN') == 'true':
+        print("=" * 70)
+        print("应急智能体 Web API 服务启动中...")
+        print("=" * 70)
+        print("本地访问:")
+        print(f"  前端页面: http://localhost:5001")
+        print(f"  API 接口: http://localhost:5001/getMessageWeb")
+        print(f"  健康检查: http://localhost:5001/health")
+        print("-" * 70)
+        print("外网访问:")
+        print(f"  前端页面: http://218.199.69.58:5001")
+        print(f"  API 接口: http://218.199.69.58:5001/getMessageWeb")
+        print(f"  健康检查: http://218.199.69.58:5001/health")
+        print("=" * 70)
+        print("注意: 如果外网无法访问，请检查防火墙是否开放5001端口")
+        print("=" * 70)
     
     # 启动 Flask 应用
     app.run(

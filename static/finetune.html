@@ -16,23 +16,16 @@
         }
         
         .gradient-bg {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-        }
-        
-        .glass-effect {
-            background: rgba(255, 255, 255, 0.95);
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(255, 255, 255, 0.2);
+            background: #4f46e5;
         }
         
         .tab-button {
-            transition: all 0.3s ease;
+            transition: background-color 0.2s;
         }
         
         .tab-button.active {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: #4f46e5;
             color: white;
-            box-shadow: 0 4px 6px -1px rgba(102, 126, 234, 0.3);
         }
         
         .custom-scrollbar::-webkit-scrollbar {
@@ -41,57 +34,14 @@
         
         .custom-scrollbar::-webkit-scrollbar-track {
             background: #f1f1f1;
-            border-radius: 10px;
         }
         
         .custom-scrollbar::-webkit-scrollbar-thumb {
             background: #888;
-            border-radius: 10px;
         }
         
         .custom-scrollbar::-webkit-scrollbar-thumb:hover {
             background: #555;
-        }
-        
-        .input-field {
-            transition: all 0.2s ease;
-        }
-        
-        .input-field:focus {
-            transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.2);
-        }
-        
-        .btn-primary {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            transition: all 0.3s ease;
-        }
-        
-        .btn-primary:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 8px 16px rgba(102, 126, 234, 0.3);
-        }
-        
-        .card-hover {
-            transition: all 0.3s ease;
-        }
-        
-        .card-hover:hover {
-            transform: translateY(-4px);
-            box-shadow: 0 12px 24px rgba(0, 0, 0, 0.1);
-        }
-        
-        @keyframes pulse-glow {
-            0%, 100% {
-                box-shadow: 0 0 20px rgba(102, 126, 234, 0.4);
-            }
-            50% {
-                box-shadow: 0 0 40px rgba(102, 126, 234, 0.6);
-            }
-        }
-        
-        .pulse-glow {
-            animation: pulse-glow 2s infinite;
         }
         
         .status-indicator {
@@ -108,7 +58,6 @@
         
         .status-training {
             background: #10b981;
-            animation: pulse 2s infinite;
         }
         
         .status-error {
@@ -118,15 +67,15 @@
 </head>
 <body class="h-full bg-gray-50">
     <!-- 顶部导航栏 -->
-    <nav class="gradient-bg shadow-lg">
+    <nav class="gradient-bg shadow">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="flex justify-between h-16">
                 <div class="flex items-center">
                     <div class="flex-shrink-0 flex items-center">
-                        <h1 class="text-2xl font-bold text-white">🚑 Emergency-LLM</h1>
+                        <h1 class="text-xl font-semibold text-white">Emergency-LLM</h1>
                     </div>
                     <div class="ml-10 flex items-center space-x-4">
-                        <span class="text-white text-sm font-medium">模型微调平台</span>
+                        <span class="text-white text-sm">模型微调平台</span>
                     </div>
                 </div>
                 <div class="flex items-center space-x-4">
@@ -146,15 +95,15 @@
             <div class="flex space-x-2 bg-white rounded-lg p-1 shadow">
                 <button class="tab-button active flex-1 py-3 px-4 rounded-md font-medium text-gray-700" 
                         onclick="switchTab('train')" id="trainTab">
-                    📚 训练配置
+                    训练配置
                 </button>
                 <button class="tab-button flex-1 py-3 px-4 rounded-md font-medium text-gray-700" 
                         onclick="switchTab('monitor')" id="monitorTab">
-                    📊 训练监控
+                    训练监控
                 </button>
                 <button class="tab-button flex-1 py-3 px-4 rounded-md font-medium text-gray-700" 
                         onclick="switchTab('export')" id="exportTab">
-                    💾 模型导出
+                    模型导出
                 </button>
             </div>
         </div>
@@ -163,15 +112,14 @@
         <div id="trainContent" class="tab-content">
             <div class="grid grid-cols-1 gap-6">
                 <!-- 模型配置卡片 -->
-                <div class="bg-white rounded-xl shadow-md p-6 card-hover">
-                    <h2 class="text-xl font-bold text-gray-800 mb-4 flex items-center">
-                        <span class="bg-gradient-to-r from-purple-500 to-pink-500 text-white rounded-lg p-2 mr-3">🤖</span>
+                <div class="bg-white rounded-lg shadow p-6">
+                    <h2 class="text-lg font-semibold text-gray-800 mb-4 border-b pb-2">
                         模型配置
                     </h2>
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div>
                             <label class="block text-sm font-medium text-gray-700 mb-2">模型名称</label>
-                            <select id="modelName" class="input-field w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent">
+                            <select id="modelName" class="w-full px-3 py-2 border border-gray-300 rounded focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500">
                                 <option value="">选择模型...</option>
                                 <option value="llama3">LLaMA-3</option>
                                 <option value="qwen">Qwen</option>
@@ -182,11 +130,11 @@
                         <div>
                             <label class="block text-sm font-medium text-gray-700 mb-2">模型路径</label>
                             <input type="text" id="modelPath" placeholder="/path/to/model" 
-                                   class="input-field w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent">
+                                   class="w-full px-3 py-2 border border-gray-300 rounded focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500">
                         </div>
                         <div>
                             <label class="block text-sm font-medium text-gray-700 mb-2">微调类型</label>
-                            <select id="finetuningType" class="input-field w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent">
+                            <select id="finetuningType" class="w-full px-3 py-2 border border-gray-300 rounded focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500">
                                 <option value="lora">LoRA</option>
                                 <option value="full">全参数微调</option>
                                 <option value="freeze">冻结微调</option>
@@ -194,7 +142,7 @@
                         </div>
                         <div>
                             <label class="block text-sm font-medium text-gray-700 mb-2">量化方式</label>
-                            <select id="quantizationBit" class="input-field w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent">
+                            <select id="quantizationBit" class="w-full px-3 py-2 border border-gray-300 rounded focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500">
                                 <option value="none">无量化</option>
                                 <option value="8">8-bit</option>
                                 <option value="4">4-bit</option>
@@ -202,7 +150,7 @@
                         </div>
                         <div>
                             <label class="block text-sm font-medium text-gray-700 mb-2">模板类型</label>
-                            <select id="template" class="input-field w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent">
+                            <select id="template" class="w-full px-3 py-2 border border-gray-300 rounded focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500">
                                 <option value="default">默认</option>
                                 <option value="llama3">LLaMA-3</option>
                                 <option value="qwen">Qwen</option>
@@ -211,7 +159,7 @@
                         </div>
                         <div>
                             <label class="block text-sm font-medium text-gray-700 mb-2">加速器</label>
-                            <select id="booster" class="input-field w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent">
+                            <select id="booster" class="w-full px-3 py-2 border border-gray-300 rounded focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500">
                                 <option value="auto">自动</option>
                                 <option value="flashattn2">FlashAttention-2</option>
                                 <option value="unsloth">Unsloth</option>
@@ -221,15 +169,14 @@
                 </div>
 
                 <!-- 数据配置卡片 -->
-                <div class="bg-white rounded-xl shadow-md p-6 card-hover">
-                    <h2 class="text-xl font-bold text-gray-800 mb-4 flex items-center">
-                        <span class="bg-gradient-to-r from-blue-500 to-cyan-500 text-white rounded-lg p-2 mr-3">📁</span>
+                <div class="bg-white rounded-lg shadow p-6">
+                    <h2 class="text-lg font-semibold text-gray-800 mb-4 border-b pb-2">
                         数据配置
                     </h2>
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div>
                             <label class="block text-sm font-medium text-gray-700 mb-2">训练阶段</label>
-                            <select id="trainingStage" class="input-field w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent">
+                            <select id="trainingStage" class="w-full px-3 py-2 border border-gray-300 rounded focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500">
                                 <option value="sft">监督微调 (SFT)</option>
                                 <option value="pt">预训练 (PT)</option>
                                 <option value="rm">奖励建模 (RM)</option>
@@ -240,7 +187,7 @@
                         <div>
                             <label class="block text-sm font-medium text-gray-700 mb-2">数据集目录</label>
                             <input type="text" id="datasetDir" value="data" 
-                                   class="input-field w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent">
+                                   class="w-full px-3 py-2 border border-gray-300 rounded focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500">
                         </div>
                         <div class="md:col-span-2">
                             <label class="block text-sm font-medium text-gray-700 mb-2">数据集选择</label>
@@ -258,7 +205,7 @@
                                 </div>
                                 <!-- 下拉数据集列表 -->
                                 <div id="datasetListContainer" 
-                                     class="hidden absolute z-10 w-full mt-1 max-h-64 overflow-y-auto custom-scrollbar border border-gray-300 rounded-lg p-3 bg-white shadow-lg">
+                                     class="hidden absolute z-10 w-full mt-1 max-h-64 overflow-y-auto custom-scrollbar border border-gray-300 rounded p-3 bg-white shadow">
                                     <p class="text-sm text-gray-500">正在加载数据集列表...</p>
                                 </div>
                             </div>
@@ -267,50 +214,49 @@
                 </div>
 
                 <!-- 基础训练参数卡片 -->
-                <div class="bg-white rounded-xl shadow-md p-6 card-hover">
-                    <h2 class="text-xl font-bold text-gray-800 mb-4 flex items-center">
-                        <span class="bg-gradient-to-r from-green-500 to-emerald-500 text-white rounded-lg p-2 mr-3">⚙️</span>
+                <div class="bg-white rounded-lg shadow p-6">
+                    <h2 class="text-lg font-semibold text-gray-800 mb-4 border-b pb-2">
                         基础训练参数
                     </h2>
                     <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
                         <div>
                             <label class="block text-sm font-medium text-gray-700 mb-2">学习率</label>
                             <input type="text" id="learningRate" value="5e-5" 
-                                   class="input-field w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent">
+                                   class="w-full px-3 py-2 border border-gray-300 rounded focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500">
                         </div>
                         <div>
                             <label class="block text-sm font-medium text-gray-700 mb-2">训练轮数</label>
                             <input type="text" id="numTrainEpochs" value="3.0" 
-                                   class="input-field w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent">
+                                   class="w-full px-3 py-2 border border-gray-300 rounded focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500">
                         </div>
                         <div>
                             <label class="block text-sm font-medium text-gray-700 mb-2">最大梯度范数</label>
                             <input type="text" id="maxGradNorm" value="1.0" 
-                                   class="input-field w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent">
+                                   class="w-full px-3 py-2 border border-gray-300 rounded focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500">
                         </div>
                         <div>
                             <label class="block text-sm font-medium text-gray-700 mb-2">序列长度 (cutoff_len)</label>
                             <input type="number" id="cutoffLen" value="2048" min="4" max="131072" 
-                                   class="input-field w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent">
+                                   class="w-full px-3 py-2 border border-gray-300 rounded focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500">
                         </div>
                         <div>
                             <label class="block text-sm font-medium text-gray-700 mb-2">批次大小 (batch_size)</label>
                             <input type="number" id="batchSize" value="2" min="1" max="1024" 
-                                   class="input-field w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent">
+                                   class="w-full px-3 py-2 border border-gray-300 rounded focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500">
                         </div>
                         <div>
                             <label class="block text-sm font-medium text-gray-700 mb-2">梯度累积步数</label>
                             <input type="number" id="gradientAccumulation" value="8" min="1" max="1024" 
-                                   class="input-field w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent">
+                                   class="w-full px-3 py-2 border border-gray-300 rounded focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500">
                         </div>
                         <div>
                             <label class="block text-sm font-medium text-gray-700 mb-2">验证集比例</label>
                             <input type="number" id="valSize" value="0" min="0" max="1" step="0.01" 
-                                   class="input-field w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent">
+                                   class="w-full px-3 py-2 border border-gray-300 rounded focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500">
                         </div>
                         <div>
                             <label class="block text-sm font-medium text-gray-700 mb-2">学习率调度器</label>
-                            <select id="lrScheduler" class="input-field w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent">
+                            <select id="lrScheduler" class="w-full px-3 py-2 border border-gray-300 rounded focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500">
                                 <option value="cosine">余弦退火</option>
                                 <option value="linear">线性</option>
                                 <option value="constant">常量</option>
@@ -319,7 +265,7 @@
                         </div>
                         <div>
                             <label class="block text-sm font-medium text-gray-700 mb-2">计算精度</label>
-                            <select id="computeType" class="input-field w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent">
+                            <select id="computeType" class="w-full px-3 py-2 border border-gray-300 rounded focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500">
                                 <option value="bf16">BF16</option>
                                 <option value="fp16">FP16</option>
                                 <option value="fp32">FP32</option>
@@ -329,39 +275,38 @@
                 </div>
 
                 <!-- LoRA配置 -->
-                <div class="bg-white rounded-xl shadow-md p-6 card-hover">
-                    <h2 class="text-xl font-bold text-gray-800 mb-4 flex items-center">
-                        <span class="bg-gradient-to-r from-orange-500 to-red-500 text-white rounded-lg p-2 mr-3">🎯</span>
+                <div class="bg-white rounded-lg shadow p-6">
+                    <h2 class="text-lg font-semibold text-gray-800 mb-4 border-b pb-2">
                         LoRA 配置
                     </h2>
                     <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
                             <div>
                                 <label class="block text-sm font-medium text-gray-700 mb-2">LoRA Rank</label>
                                 <input type="number" id="loraRank" value="8" min="1" max="1024" 
-                                       class="input-field w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent">
+                                       class="w-full px-3 py-2 border border-gray-300 rounded focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500">
                             </div>
                             <div>
                                 <label class="block text-sm font-medium text-gray-700 mb-2">LoRA Alpha</label>
                                 <input type="number" id="loraAlpha" value="16" min="1" max="2048" 
-                                       class="input-field w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent">
+                                       class="w-full px-3 py-2 border border-gray-300 rounded focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500">
                             </div>
                             <div>
                                 <label class="block text-sm font-medium text-gray-700 mb-2">LoRA Dropout</label>
                                 <input type="number" id="loraDropout" value="0" min="0" max="1" step="0.01" 
-                                       class="input-field w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent">
+                                       class="w-full px-3 py-2 border border-gray-300 rounded focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500">
                             </div>
                             <div class="md:col-span-2">
                                 <label class="block text-sm font-medium text-gray-700 mb-2">LoRA Target 模块</label>
                                 <input type="text" id="loraTarget" placeholder="all 或 q_proj,v_proj" 
-                                       class="input-field w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent">
+                                       class="w-full px-3 py-2 border border-gray-300 rounded focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500">
                             </div>
                             <div class="flex items-center space-x-6">
                                 <label class="flex items-center">
-                                    <input type="checkbox" id="useRslora" class="rounded text-purple-600 focus:ring-purple-500 mr-2">
+                                    <input type="checkbox" id="useRslora" class="rounded text-indigo-600 focus:ring-indigo-500 mr-2">
                                     <span class="text-sm text-gray-700">使用 RSLoRA</span>
                                 </label>
                                 <label class="flex items-center">
-                                    <input type="checkbox" id="useDora" class="rounded text-purple-600 focus:ring-purple-500 mr-2">
+                                    <input type="checkbox" id="useDora" class="rounded text-indigo-600 focus:ring-indigo-500 mr-2">
                                     <span class="text-sm text-gray-700">使用 DoRA</span>
                                 </label>
                             </div>
@@ -369,35 +314,34 @@
                 </div>
 
                 <!-- 高级选项 -->
-                <div class="bg-white rounded-xl shadow-md p-6 card-hover">
-                    <h2 class="text-xl font-bold text-gray-800 mb-4 flex items-center">
-                        <span class="bg-gradient-to-r from-indigo-500 to-purple-500 text-white rounded-lg p-2 mr-3">🔧</span>
+                <div class="bg-white rounded-lg shadow p-6">
+                    <h2 class="text-lg font-semibold text-gray-800 mb-4 border-b pb-2">
                         高级选项
                     </h2>
                     <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
                             <div>
                                 <label class="block text-sm font-medium text-gray-700 mb-2">日志步数</label>
                                 <input type="number" id="loggingSteps" value="5" min="1" max="1000" 
-                                       class="input-field w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent">
+                                       class="w-full px-3 py-2 border border-gray-300 rounded focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500">
                             </div>
                             <div>
                                 <label class="block text-sm font-medium text-gray-700 mb-2">保存步数</label>
                                 <input type="number" id="saveSteps" value="100" min="10" max="5000" 
-                                       class="input-field w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent">
+                                       class="w-full px-3 py-2 border border-gray-300 rounded focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500">
                             </div>
                             <div>
                                 <label class="block text-sm font-medium text-gray-700 mb-2">预热步数</label>
                                 <input type="number" id="warmupSteps" value="0" min="0" max="5000" 
-                                       class="input-field w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent">
+                                       class="w-full px-3 py-2 border border-gray-300 rounded focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500">
                             </div>
                             <div>
                                 <label class="block text-sm font-medium text-gray-700 mb-2">输出目录</label>
                                 <input type="text" id="outputDir" placeholder="saves/emergency-llm" 
-                                       class="input-field w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent">
+                                       class="w-full px-3 py-2 border border-gray-300 rounded focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500">
                             </div>
                             <div>
                                 <label class="block text-sm font-medium text-gray-700 mb-2">DeepSpeed阶段</label>
-                                <select id="dsStage" class="input-field w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent">
+                                <select id="dsStage" class="w-full px-3 py-2 border border-gray-300 rounded focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500">
                                     <option value="none">不使用</option>
                                     <option value="2">阶段2</option>
                                     <option value="3">阶段3</option>
@@ -405,7 +349,7 @@
                             </div>
                             <div>
                                 <label class="block text-sm font-medium text-gray-700 mb-2">报告工具</label>
-                                <select id="reportTo" class="input-field w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent">
+                                <select id="reportTo" class="w-full px-3 py-2 border border-gray-300 rounded focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500">
                                     <option value="none">无</option>
                                     <option value="tensorboard">TensorBoard</option>
                                     <option value="wandb">W&B</option>
@@ -415,46 +359,46 @@
                         </div>
                         <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mt-4">
                             <label class="flex items-center">
-                                <input type="checkbox" id="packing" class="rounded text-purple-600 focus:ring-purple-500 mr-2">
+                                <input type="checkbox" id="packing" class="rounded text-indigo-600 focus:ring-indigo-500 mr-2">
                                 <span class="text-sm text-gray-700">启用 Packing</span>
                             </label>
                             <label class="flex items-center">
-                                <input type="checkbox" id="trainOnPrompt" class="rounded text-purple-600 focus:ring-purple-500 mr-2">
+                                <input type="checkbox" id="trainOnPrompt" class="rounded text-indigo-600 focus:ring-indigo-500 mr-2">
                                 <span class="text-sm text-gray-700">训练提示词</span>
                             </label>
                             <label class="flex items-center">
-                                <input type="checkbox" id="resizeVocab" class="rounded text-purple-600 focus:ring-purple-500 mr-2">
+                                <input type="checkbox" id="resizeVocab" class="rounded text-indigo-600 focus:ring-indigo-500 mr-2">
                                 <span class="text-sm text-gray-700">调整词表</span>
                             </label>
                             <label class="flex items-center">
-                                <input type="checkbox" id="dsOffload" class="rounded text-purple-600 focus:ring-purple-500 mr-2">
+                                <input type="checkbox" id="dsOffload" class="rounded text-indigo-600 focus:ring-indigo-500 mr-2">
                                 <span class="text-sm text-gray-700">DeepSpeed卸载</span>
                             </label>
                         </div>
                 </div>
 
                 <!-- 操作按钮 -->
-                <div class="bg-white rounded-xl shadow-md p-6">
-                    <div class="flex flex-wrap gap-4">
+                <div class="bg-white rounded-lg shadow p-6">
+                    <div class="flex flex-wrap gap-3">
                         <button onclick="previewConfig()" 
-                                class="flex-1 min-w-[200px] px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition font-medium">
-                            👁️ 预览配置
+                                class="flex-1 min-w-[200px] px-6 py-2.5 bg-indigo-600 text-white rounded hover:bg-indigo-700">
+                            预览配置
                         </button>
                         <button onclick="saveConfig()" 
-                                class="flex-1 min-w-[200px] px-6 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 transition font-medium">
-                            💾 保存配置
+                                class="flex-1 min-w-[200px] px-6 py-2.5 bg-indigo-600 text-white rounded hover:bg-indigo-700">
+                            保存配置
                         </button>
                         <button onclick="loadConfig()" 
-                                class="flex-1 min-w-[200px] px-6 py-3 bg-yellow-600 text-white rounded-lg hover:bg-yellow-700 transition font-medium">
-                            📂 加载配置
+                                class="flex-1 min-w-[200px] px-6 py-2.5 bg-indigo-600 text-white rounded hover:bg-indigo-700">
+                            加载配置
                         </button>
                         <button onclick="startTraining()" id="startBtn"
-                                class="flex-1 min-w-[200px] px-6 py-3 btn-primary text-white rounded-lg font-medium pulse-glow">
-                            🚀 开始训练
+                                class="flex-1 min-w-[200px] px-6 py-2.5 bg-indigo-600 text-white rounded hover:bg-indigo-700">
+                            开始训练
                         </button>
                         <button onclick="stopTraining()" id="stopBtn"
-                                class="flex-1 min-w-[200px] px-6 py-3 bg-red-600 text-white rounded-lg hover:bg-red-700 transition font-medium" disabled>
-                            ⏹️ 停止训练
+                                class="flex-1 min-w-[200px] px-6 py-2.5 bg-red-600 text-white rounded hover:bg-red-700" disabled>
+                            停止训练
                         </button>
                     </div>
                 </div>
@@ -465,66 +409,57 @@
         <div id="monitorContent" class="tab-content hidden">
             <div class="grid grid-cols-1 gap-6">
                 <!-- 训练状态卡片 -->
-                <div class="bg-white rounded-xl shadow-md p-6">
-                    <h2 class="text-xl font-bold text-gray-800 mb-4 flex items-center">
-                        <span class="bg-gradient-to-r from-green-500 to-emerald-500 text-white rounded-lg p-2 mr-3">📊</span>
+                <div class="bg-white rounded-lg shadow p-6">
+                    <h2 class="text-lg font-semibold text-gray-800 mb-4 border-b pb-2">
                         训练状态
                     </h2>
                     <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
-                        <div class="text-center p-4 bg-blue-50 rounded-lg">
-                            <div class="text-2xl font-bold text-blue-600" id="currentEpoch">0</div>
+                        <div class="text-center p-4 bg-gray-50 rounded border">
+                            <div class="text-2xl font-semibold text-gray-800" id="currentEpoch">0</div>
                             <div class="text-sm text-gray-600">当前轮次</div>
                         </div>
-                        <div class="text-center p-4 bg-green-50 rounded-lg">
-                            <div class="text-2xl font-bold text-green-600" id="currentStep">0</div>
+                        <div class="text-center p-4 bg-gray-50 rounded border">
+                            <div class="text-2xl font-semibold text-gray-800" id="currentStep">0</div>
                             <div class="text-sm text-gray-600">当前步数</div>
                         </div>
-                        <div class="text-center p-4 bg-purple-50 rounded-lg">
-                            <div class="text-2xl font-bold text-purple-600" id="currentLoss">-</div>
+                        <div class="text-center p-4 bg-gray-50 rounded border">
+                            <div class="text-2xl font-semibold text-gray-800" id="currentLoss">-</div>
                             <div class="text-sm text-gray-600">当前Loss</div>
                         </div>
-                        <div class="text-center p-4 bg-orange-50 rounded-lg">
-                            <div class="text-2xl font-bold text-orange-600" id="trainingTime">00:00:00</div>
+                        <div class="text-center p-4 bg-gray-50 rounded border">
+                            <div class="text-2xl font-semibold text-gray-800" id="trainingTime">00:00:00</div>
                             <div class="text-sm text-gray-600">训练时长</div>
                         </div>
                     </div>
                 </div>
 
                 <!-- 进度条 -->
-                <div class="bg-white rounded-xl shadow-md p-6">
-                    <h3 class="text-lg font-semibold text-gray-800 mb-3">训练进度</h3>
-                    <div class="w-full bg-gray-200 rounded-full h-4 overflow-hidden">
-                        <div class="bg-gradient-to-r from-purple-500 to-pink-500 h-4 rounded-full transition-all duration-500" 
+                <div class="bg-white rounded-lg shadow p-6">
+                    <h3 class="text-base font-semibold text-gray-800 mb-3">训练进度</h3>
+                    <div class="w-full bg-gray-200 rounded h-3 overflow-hidden">
+                        <div class="bg-indigo-600 h-3 rounded transition-all duration-500" 
                              id="progressBar" style="width: 0%"></div>
                     </div>
                     <div class="text-sm text-gray-600 mt-2 text-right" id="progressText">0%</div>
                 </div>
 
                 <!-- 训练日志 -->
-                <div class="bg-white rounded-xl shadow-md p-6">
-                    <h2 class="text-xl font-bold text-gray-800 mb-4 flex items-center">
-                        <span class="bg-gradient-to-r from-blue-500 to-cyan-500 text-white rounded-lg p-2 mr-3">📝</span>
+                <div class="bg-white rounded-lg shadow p-6">
+                    <h2 class="text-lg font-semibold text-gray-800 mb-4 border-b pb-2">
                         训练日志
                     </h2>
-                    <div class="bg-gray-900 rounded-lg p-4 h-96 overflow-y-auto custom-scrollbar font-mono text-sm" id="logContainer">
+                    <div class="bg-gray-900 rounded p-4 h-96 overflow-y-auto custom-scrollbar font-mono text-sm" id="logContainer">
                         <div class="text-green-400">> 等待开始训练...</div>
                     </div>
                 </div>
 
                 <!-- Loss曲线图 -->
-                <div class="bg-white rounded-xl shadow-md p-6">
-                    <h2 class="text-xl font-bold text-gray-800 mb-4 flex items-center">
-                        <span class="bg-gradient-to-r from-blue-500 to-blue-600 text-white rounded-lg p-2 mr-3">📈</span>
+                <div class="bg-white rounded-lg shadow p-6">
+                    <h2 class="text-lg font-semibold text-gray-800 mb-4 border-b pb-2">
                         Training Loss Curve
                     </h2>
-                    <div class="h-96 bg-white rounded-lg border border-gray-200 p-4">
+                    <div class="h-96 bg-white rounded border border-gray-200 p-4">
                         <canvas id="lossChart"></canvas>
-                    </div>
-                    <div class="mt-3 text-xs text-gray-500 text-center">
-                        <span class="inline-block">
-                            <span class="inline-block w-3 h-3 rounded-full bg-blue-600 mr-1"></span>
-                            训练损失
-                        </span>
                     </div>
                 </div>
             </div>
@@ -533,15 +468,14 @@
         <!-- 模型导出标签页 -->
         <div id="exportContent" class="tab-content hidden">
             <div class="grid grid-cols-1 gap-6">
-                <div class="bg-white rounded-xl shadow-md p-6">
-                    <h2 class="text-xl font-bold text-gray-800 mb-4 flex items-center">
-                        <span class="bg-gradient-to-r from-purple-500 to-pink-500 text-white rounded-lg p-2 mr-3">💾</span>
+                <div class="bg-white rounded-lg shadow p-6">
+                    <h2 class="text-lg font-semibold text-gray-800 mb-4 border-b pb-2">
                         模型导出配置
                     </h2>
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div>
                             <label class="block text-sm font-medium text-gray-700 mb-2">导出格式</label>
-                            <select id="exportFormat" class="input-field w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent">
+                            <select id="exportFormat" class="w-full px-3 py-2 border border-gray-300 rounded focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500">
                                 <option value="huggingface">HuggingFace</option>
                                 <option value="gguf">GGUF</option>
                                 <option value="vllm">vLLM</option>
@@ -550,38 +484,34 @@
                         <div>
                             <label class="block text-sm font-medium text-gray-700 mb-2">导出路径</label>
                             <input type="text" id="exportPath" placeholder="exports/emergency-llm" 
-                                   class="input-field w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent">
+                                   class="w-full px-3 py-2 border border-gray-300 rounded focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500">
                         </div>
                         <div>
                             <label class="block text-sm font-medium text-gray-700 mb-2">检查点路径</label>
                             <input type="text" id="checkpointPath" placeholder="saves/checkpoint-1000" 
-                                   class="input-field w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent">
+                                   class="w-full px-3 py-2 border border-gray-300 rounded focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500">
                         </div>
                         <div>
                             <label class="block text-sm font-medium text-gray-700 mb-2">量化精度</label>
-                            <select id="exportQuantization" class="input-field w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent">
+                            <select id="exportQuantization" class="w-full px-3 py-2 border border-gray-300 rounded focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500">
                                 <option value="none">不量化</option>
                                 <option value="8bit">8-bit</option>
                                 <option value="4bit">4-bit</option>
                             </select>
                         </div>
                     </div>
-                    <div class="mt-6 flex gap-4">
+                    <div class="mt-6">
                         <button onclick="exportModel()" 
-                                class="flex-1 px-6 py-3 btn-primary text-white rounded-lg font-medium">
-                            📦 导出模型
-                        </button>
-                        <button onclick="mergeAdapters()" 
-                                class="flex-1 px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition font-medium">
-                            🔗 合并适配器
+                                class="w-full px-6 py-2.5 bg-indigo-600 text-white rounded hover:bg-indigo-700">
+                            导出模型
                         </button>
                     </div>
                 </div>
 
                 <!-- 导出日志 -->
-                <div class="bg-white rounded-xl shadow-md p-6">
-                    <h2 class="text-xl font-bold text-gray-800 mb-4">导出日志</h2>
-                    <div class="bg-gray-900 rounded-lg p-4 h-64 overflow-y-auto custom-scrollbar font-mono text-sm" id="exportLogContainer">
+                <div class="bg-white rounded-lg shadow p-6">
+                    <h2 class="text-lg font-semibold text-gray-800 mb-4 border-b pb-2">导出日志</h2>
+                    <div class="bg-gray-900 rounded p-4 h-64 overflow-y-auto custom-scrollbar font-mono text-sm" id="exportLogContainer">
                         <div class="text-green-400">> 等待导出操作...</div>
                     </div>
                 </div>
@@ -1061,13 +991,13 @@
             
             if (type === 'error') {
                 color = 'text-red-400';
-                prefix = '✗';
+                prefix = 'X';
             } else if (type === 'warning') {
                 color = 'text-yellow-400';
-                prefix = '⚠';
+                prefix = '!';
             } else if (type === 'success') {
                 color = 'text-blue-400';
-                prefix = '✓';
+                prefix = '+';
             }
             
             logEntry.className = color;
@@ -1088,13 +1018,13 @@
             
             // 验证必填参数
             if (!config.checkpoint_path || !config.checkpoint_path.trim()) {
-                addExportLog('❌ 错误: 请填写检查点路径', 'error');
+                addExportLog('错误: 请填写检查点路径', 'error');
                 alert('请填写检查点路径！');
                 return;
             }
             
             if (!config.export_path || !config.export_path.trim()) {
-                addExportLog('❌ 错误: 请填写导出路径', 'error');
+                addExportLog('错误: 请填写导出路径', 'error');
                 alert('请填写导出路径！');
                 return;
             }
@@ -1122,53 +1052,6 @@
                 addExportLog('导出失败: ' + error.message, 'error');
             }
         }
-
-        // 合并适配器
-        async function mergeAdapters() {
-            const checkpointPath = document.getElementById('checkpointPath').value.trim();
-            const exportPath = document.getElementById('exportPath').value.trim();
-            
-            // 验证必填参数
-            if (!checkpointPath) {
-                addExportLog('❌ 错误: 请填写检查点路径', 'error');
-                alert('请填写检查点路径！');
-                return;
-            }
-            
-            if (!exportPath) {
-                addExportLog('❌ 错误: 请填写导出路径', 'error');
-                alert('请填写导出路径！');
-                return;
-            }
-            
-            addExportLog('开始合并LoRA适配器...');
-            addExportLog(`检查点路径: ${checkpointPath}`);
-            addExportLog(`导出路径: ${exportPath}`);
-            
-            try {
-                const response = await fetch('/api/merge', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({
-                        checkpoint_path: checkpointPath,
-                        export_path: exportPath
-                    })
-                });
-                
-                if (!response.ok) {
-                    throw new Error('合并失败');
-                }
-                
-                const result = await response.json();
-                addExportLog('合并成功: ' + result.message);
-                
-            } catch (error) {
-                addExportLog('合并失败: ' + error.message, 'error');
-            }
-        }
-
         // 添加导出日志
         function addExportLog(message, type = 'info') {
             const logContainer = document.getElementById('exportLogContainer');
@@ -1180,7 +1063,7 @@
             
             if (type === 'error') {
                 color = 'text-red-400';
-                prefix = '✗';
+                prefix = 'X';
             }
             
             logEntry.className = color;
@@ -1237,19 +1120,19 @@
             }
             
             // 显示加载中
-            container.innerHTML = '<p class="text-sm text-gray-500 text-center py-4">⏳ 正在加载数据集列表...</p>';
+            container.innerHTML = '<p class="text-sm text-gray-500 text-center py-4">正在加载数据集列表...</p>';
             
             try {
                 const response = await fetch(`/api/datasets?dataset_dir=${encodeURIComponent(datasetDir)}`);
                 const result = await response.json();
                 
                 if (!response.ok || !result.success) {
-                    container.innerHTML = `<p class="text-sm text-red-500 text-center py-4">⚠️ ${result.message || result.error || '加载失败'}</p>`;
+                    container.innerHTML = `<p class="text-sm text-red-500 text-center py-4">${result.message || result.error || '加载失败'}</p>`;
                     return;
                 }
                 
                 if (!result.datasets || result.datasets.length === 0) {
-                    container.innerHTML = '<p class="text-sm text-gray-500 text-center py-4">📭 该目录下没有可用的数据集</p>';
+                    container.innerHTML = '<p class="text-sm text-gray-500 text-center py-4">该目录下没有可用的数据集</p>';
                     return;
                 }
                 
@@ -1262,14 +1145,14 @@
                     const formatting = dataset.formatting || '';
                     
                     html += `
-                        <label class="flex items-center space-x-2 hover:bg-blue-50 p-2 rounded cursor-pointer transition">
+                        <label class="flex items-center space-x-2 hover:bg-gray-50 p-2 rounded cursor-pointer">
                             <input type="checkbox" 
-                                   class="dataset-checkbox rounded text-purple-600 focus:ring-purple-500" 
+                                   class="dataset-checkbox rounded text-indigo-600 focus:ring-indigo-500" 
                                    value="${datasetName}"
                                    ${isChecked ? 'checked' : ''}
                                    onchange="updateSelectedDatasets()">
                             <span class="text-sm text-gray-700 flex-1">${datasetName}</span>
-                            ${formatting ? `<span class="text-xs text-gray-500 bg-blue-100 px-2 py-0.5 rounded">${formatting}</span>` : ''}
+                            ${formatting ? `<span class="text-xs text-gray-500 bg-gray-100 px-2 py-0.5 rounded">${formatting}</span>` : ''}
                         </label>
                     `;
                 });
@@ -1277,14 +1160,14 @@
                 html += '</div>';
                 html += `<div class="mt-3 pt-3 border-t flex justify-between items-center">
                             <p class="text-xs text-gray-500">共 ${result.total} 个数据集</p>
-                            <button onclick="hideDatasetList()" class="text-xs text-blue-600 hover:text-blue-800">关闭</button>
+                            <button onclick="hideDatasetList()" class="text-xs text-indigo-600 hover:text-indigo-800">关闭</button>
                          </div>`;
                 
                 container.innerHTML = html;
                 
             } catch (error) {
                 console.error('加载数据集列表失败:', error);
-                container.innerHTML = `<p class="text-sm text-red-500 text-center py-4">⚠️ 加载失败: ${error.message}</p>`;
+                container.innerHTML = `<p class="text-sm text-red-500 text-center py-4">加载失败: ${error.message}</p>`;
             }
         }
 
