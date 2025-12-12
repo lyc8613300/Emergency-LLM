@@ -1,0 +1,1358 @@
+<!DOCTYPE html>
+<html lang="zh-CN" class="h-full">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Emergency-LLM 模型微调平台</title>
+    <!-- 引入Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <!-- 引入Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        * {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+        }
+        
+        .gradient-bg {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+        
+        .glass-effect {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        
+        .tab-button {
+            transition: all 0.3s ease;
+        }
+        
+        .tab-button.active {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            box-shadow: 0 4px 6px -1px rgba(102, 126, 234, 0.3);
+        }
+        
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 8px;
+        }
+        
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: #f1f1f1;
+            border-radius: 10px;
+        }
+        
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: #888;
+            border-radius: 10px;
+        }
+        
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+            background: #555;
+        }
+        
+        .input-field {
+            transition: all 0.2s ease;
+        }
+        
+        .input-field:focus {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.2);
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            transition: all 0.3s ease;
+        }
+        
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 16px rgba(102, 126, 234, 0.3);
+        }
+        
+        .card-hover {
+            transition: all 0.3s ease;
+        }
+        
+        .card-hover:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 12px 24px rgba(0, 0, 0, 0.1);
+        }
+        
+        @keyframes pulse-glow {
+            0%, 100% {
+                box-shadow: 0 0 20px rgba(102, 126, 234, 0.4);
+            }
+            50% {
+                box-shadow: 0 0 40px rgba(102, 126, 234, 0.6);
+            }
+        }
+        
+        .pulse-glow {
+            animation: pulse-glow 2s infinite;
+        }
+        
+        .status-indicator {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            display: inline-block;
+            margin-right: 8px;
+        }
+        
+        .status-idle {
+            background: #9ca3af;
+        }
+        
+        .status-training {
+            background: #10b981;
+            animation: pulse 2s infinite;
+        }
+        
+        .status-error {
+            background: #ef4444;
+        }
+    </style>
+</head>
+<body class="h-full bg-gray-50">
+    <!-- 顶部导航栏 -->
+    <nav class="gradient-bg shadow-lg">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between h-16">
+                <div class="flex items-center">
+                    <div class="flex-shrink-0 flex items-center">
+                        <h1 class="text-2xl font-bold text-white">🚑 Emergency-LLM</h1>
+                    </div>
+                    <div class="ml-10 flex items-center space-x-4">
+                        <span class="text-white text-sm font-medium">模型微调平台</span>
+                    </div>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <div class="flex items-center">
+                        <span class="status-indicator status-idle" id="statusIndicator"></span>
+                        <span class="text-white text-sm" id="statusText">空闲</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- 主容器 -->
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <!-- 标签页 -->
+        <div class="mb-6">
+            <div class="flex space-x-2 bg-white rounded-lg p-1 shadow">
+                <button class="tab-button active flex-1 py-3 px-4 rounded-md font-medium text-gray-700" 
+                        onclick="switchTab('train')" id="trainTab">
+                    📚 训练配置
+                </button>
+                <button class="tab-button flex-1 py-3 px-4 rounded-md font-medium text-gray-700" 
+                        onclick="switchTab('monitor')" id="monitorTab">
+                    📊 训练监控
+                </button>
+                <button class="tab-button flex-1 py-3 px-4 rounded-md font-medium text-gray-700" 
+                        onclick="switchTab('export')" id="exportTab">
+                    💾 模型导出
+                </button>
+            </div>
+        </div>
+
+        <!-- 训练配置标签页 -->
+        <div id="trainContent" class="tab-content">
+            <div class="grid grid-cols-1 gap-6">
+                <!-- 模型配置卡片 -->
+                <div class="bg-white rounded-xl shadow-md p-6 card-hover">
+                    <h2 class="text-xl font-bold text-gray-800 mb-4 flex items-center">
+                        <span class="bg-gradient-to-r from-purple-500 to-pink-500 text-white rounded-lg p-2 mr-3">🤖</span>
+                        模型配置
+                    </h2>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">模型名称</label>
+                            <select id="modelName" class="input-field w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent">
+                                <option value="">选择模型...</option>
+                                <option value="llama3">LLaMA-3</option>
+                                <option value="qwen">Qwen</option>
+                                <option value="chatglm">ChatGLM</option>
+                                <option value="custom">自定义模型</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">模型路径</label>
+                            <input type="text" id="modelPath" placeholder="/path/to/model" 
+                                   class="input-field w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">微调类型</label>
+                            <select id="finetuningType" class="input-field w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent">
+                                <option value="lora">LoRA</option>
+                                <option value="full">全参数微调</option>
+                                <option value="freeze">冻结微调</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">量化方式</label>
+                            <select id="quantizationBit" class="input-field w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent">
+                                <option value="none">无量化</option>
+                                <option value="8">8-bit</option>
+                                <option value="4">4-bit</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">模板类型</label>
+                            <select id="template" class="input-field w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent">
+                                <option value="default">默认</option>
+                                <option value="llama3">LLaMA-3</option>
+                                <option value="qwen">Qwen</option>
+                                <option value="chatglm">ChatGLM</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">加速器</label>
+                            <select id="booster" class="input-field w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent">
+                                <option value="auto">自动</option>
+                                <option value="flashattn2">FlashAttention-2</option>
+                                <option value="unsloth">Unsloth</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 数据配置卡片 -->
+                <div class="bg-white rounded-xl shadow-md p-6 card-hover">
+                    <h2 class="text-xl font-bold text-gray-800 mb-4 flex items-center">
+                        <span class="bg-gradient-to-r from-blue-500 to-cyan-500 text-white rounded-lg p-2 mr-3">📁</span>
+                        数据配置
+                    </h2>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">训练阶段</label>
+                            <select id="trainingStage" class="input-field w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent">
+                                <option value="sft">监督微调 (SFT)</option>
+                                <option value="pt">预训练 (PT)</option>
+                                <option value="rm">奖励建模 (RM)</option>
+                                <option value="ppo">PPO训练</option>
+                                <option value="dpo">DPO训练</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">数据集目录</label>
+                            <input type="text" id="datasetDir" value="data" 
+                                   class="input-field w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent">
+                        </div>
+                        <div class="md:col-span-2">
+                            <label class="block text-sm font-medium text-gray-700 mb-2">数据集选择</label>
+                            <div class="relative">
+                                <div class="relative">
+                                    <input type="text" id="dataset" placeholder="点击选择数据集或手动输入数据集名称（用逗号分隔）" 
+                                           onclick="toggleDatasetList()"
+                                           oninput="syncDatasetSelection()"
+                                           class="input-field w-full px-4 py-2 pr-10 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent">
+                                    <div class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
+                                        <svg id="datasetDropdownIcon" class="w-5 h-5 text-gray-400 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                                        </svg>
+                                    </div>
+                                </div>
+                                <!-- 下拉数据集列表 -->
+                                <div id="datasetListContainer" 
+                                     class="hidden absolute z-10 w-full mt-1 max-h-64 overflow-y-auto custom-scrollbar border border-gray-300 rounded-lg p-3 bg-white shadow-lg">
+                                    <p class="text-sm text-gray-500">正在加载数据集列表...</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 基础训练参数卡片 -->
+                <div class="bg-white rounded-xl shadow-md p-6 card-hover">
+                    <h2 class="text-xl font-bold text-gray-800 mb-4 flex items-center">
+                        <span class="bg-gradient-to-r from-green-500 to-emerald-500 text-white rounded-lg p-2 mr-3">⚙️</span>
+                        基础训练参数
+                    </h2>
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">学习率</label>
+                            <input type="text" id="learningRate" value="5e-5" 
+                                   class="input-field w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">训练轮数</label>
+                            <input type="text" id="numTrainEpochs" value="3.0" 
+                                   class="input-field w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">最大梯度范数</label>
+                            <input type="text" id="maxGradNorm" value="1.0" 
+                                   class="input-field w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">序列长度 (cutoff_len)</label>
+                            <input type="number" id="cutoffLen" value="2048" min="4" max="131072" 
+                                   class="input-field w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">批次大小 (batch_size)</label>
+                            <input type="number" id="batchSize" value="2" min="1" max="1024" 
+                                   class="input-field w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">梯度累积步数</label>
+                            <input type="number" id="gradientAccumulation" value="8" min="1" max="1024" 
+                                   class="input-field w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">验证集比例</label>
+                            <input type="number" id="valSize" value="0" min="0" max="1" step="0.01" 
+                                   class="input-field w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">学习率调度器</label>
+                            <select id="lrScheduler" class="input-field w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent">
+                                <option value="cosine">余弦退火</option>
+                                <option value="linear">线性</option>
+                                <option value="constant">常量</option>
+                                <option value="polynomial">多项式</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">计算精度</label>
+                            <select id="computeType" class="input-field w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent">
+                                <option value="bf16">BF16</option>
+                                <option value="fp16">FP16</option>
+                                <option value="fp32">FP32</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- LoRA配置 -->
+                <div class="bg-white rounded-xl shadow-md p-6 card-hover">
+                    <h2 class="text-xl font-bold text-gray-800 mb-4 flex items-center">
+                        <span class="bg-gradient-to-r from-orange-500 to-red-500 text-white rounded-lg p-2 mr-3">🎯</span>
+                        LoRA 配置
+                    </h2>
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">LoRA Rank</label>
+                                <input type="number" id="loraRank" value="8" min="1" max="1024" 
+                                       class="input-field w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">LoRA Alpha</label>
+                                <input type="number" id="loraAlpha" value="16" min="1" max="2048" 
+                                       class="input-field w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">LoRA Dropout</label>
+                                <input type="number" id="loraDropout" value="0" min="0" max="1" step="0.01" 
+                                       class="input-field w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent">
+                            </div>
+                            <div class="md:col-span-2">
+                                <label class="block text-sm font-medium text-gray-700 mb-2">LoRA Target 模块</label>
+                                <input type="text" id="loraTarget" placeholder="all 或 q_proj,v_proj" 
+                                       class="input-field w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent">
+                            </div>
+                            <div class="flex items-center space-x-6">
+                                <label class="flex items-center">
+                                    <input type="checkbox" id="useRslora" class="rounded text-purple-600 focus:ring-purple-500 mr-2">
+                                    <span class="text-sm text-gray-700">使用 RSLoRA</span>
+                                </label>
+                                <label class="flex items-center">
+                                    <input type="checkbox" id="useDora" class="rounded text-purple-600 focus:ring-purple-500 mr-2">
+                                    <span class="text-sm text-gray-700">使用 DoRA</span>
+                                </label>
+                            </div>
+                        </div>
+                </div>
+
+                <!-- 高级选项 -->
+                <div class="bg-white rounded-xl shadow-md p-6 card-hover">
+                    <h2 class="text-xl font-bold text-gray-800 mb-4 flex items-center">
+                        <span class="bg-gradient-to-r from-indigo-500 to-purple-500 text-white rounded-lg p-2 mr-3">🔧</span>
+                        高级选项
+                    </h2>
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">日志步数</label>
+                                <input type="number" id="loggingSteps" value="5" min="1" max="1000" 
+                                       class="input-field w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">保存步数</label>
+                                <input type="number" id="saveSteps" value="100" min="10" max="5000" 
+                                       class="input-field w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">预热步数</label>
+                                <input type="number" id="warmupSteps" value="0" min="0" max="5000" 
+                                       class="input-field w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">输出目录</label>
+                                <input type="text" id="outputDir" placeholder="saves/emergency-llm" 
+                                       class="input-field w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">DeepSpeed阶段</label>
+                                <select id="dsStage" class="input-field w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent">
+                                    <option value="none">不使用</option>
+                                    <option value="2">阶段2</option>
+                                    <option value="3">阶段3</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">报告工具</label>
+                                <select id="reportTo" class="input-field w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent">
+                                    <option value="none">无</option>
+                                    <option value="tensorboard">TensorBoard</option>
+                                    <option value="wandb">W&B</option>
+                                    <option value="all">全部</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mt-4">
+                            <label class="flex items-center">
+                                <input type="checkbox" id="packing" class="rounded text-purple-600 focus:ring-purple-500 mr-2">
+                                <span class="text-sm text-gray-700">启用 Packing</span>
+                            </label>
+                            <label class="flex items-center">
+                                <input type="checkbox" id="trainOnPrompt" class="rounded text-purple-600 focus:ring-purple-500 mr-2">
+                                <span class="text-sm text-gray-700">训练提示词</span>
+                            </label>
+                            <label class="flex items-center">
+                                <input type="checkbox" id="resizeVocab" class="rounded text-purple-600 focus:ring-purple-500 mr-2">
+                                <span class="text-sm text-gray-700">调整词表</span>
+                            </label>
+                            <label class="flex items-center">
+                                <input type="checkbox" id="dsOffload" class="rounded text-purple-600 focus:ring-purple-500 mr-2">
+                                <span class="text-sm text-gray-700">DeepSpeed卸载</span>
+                            </label>
+                        </div>
+                </div>
+
+                <!-- 操作按钮 -->
+                <div class="bg-white rounded-xl shadow-md p-6">
+                    <div class="flex flex-wrap gap-4">
+                        <button onclick="previewConfig()" 
+                                class="flex-1 min-w-[200px] px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition font-medium">
+                            👁️ 预览配置
+                        </button>
+                        <button onclick="saveConfig()" 
+                                class="flex-1 min-w-[200px] px-6 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 transition font-medium">
+                            💾 保存配置
+                        </button>
+                        <button onclick="loadConfig()" 
+                                class="flex-1 min-w-[200px] px-6 py-3 bg-yellow-600 text-white rounded-lg hover:bg-yellow-700 transition font-medium">
+                            📂 加载配置
+                        </button>
+                        <button onclick="startTraining()" id="startBtn"
+                                class="flex-1 min-w-[200px] px-6 py-3 btn-primary text-white rounded-lg font-medium pulse-glow">
+                            🚀 开始训练
+                        </button>
+                        <button onclick="stopTraining()" id="stopBtn"
+                                class="flex-1 min-w-[200px] px-6 py-3 bg-red-600 text-white rounded-lg hover:bg-red-700 transition font-medium" disabled>
+                            ⏹️ 停止训练
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 训练监控标签页 -->
+        <div id="monitorContent" class="tab-content hidden">
+            <div class="grid grid-cols-1 gap-6">
+                <!-- 训练状态卡片 -->
+                <div class="bg-white rounded-xl shadow-md p-6">
+                    <h2 class="text-xl font-bold text-gray-800 mb-4 flex items-center">
+                        <span class="bg-gradient-to-r from-green-500 to-emerald-500 text-white rounded-lg p-2 mr-3">📊</span>
+                        训练状态
+                    </h2>
+                    <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                        <div class="text-center p-4 bg-blue-50 rounded-lg">
+                            <div class="text-2xl font-bold text-blue-600" id="currentEpoch">0</div>
+                            <div class="text-sm text-gray-600">当前轮次</div>
+                        </div>
+                        <div class="text-center p-4 bg-green-50 rounded-lg">
+                            <div class="text-2xl font-bold text-green-600" id="currentStep">0</div>
+                            <div class="text-sm text-gray-600">当前步数</div>
+                        </div>
+                        <div class="text-center p-4 bg-purple-50 rounded-lg">
+                            <div class="text-2xl font-bold text-purple-600" id="currentLoss">-</div>
+                            <div class="text-sm text-gray-600">当前Loss</div>
+                        </div>
+                        <div class="text-center p-4 bg-orange-50 rounded-lg">
+                            <div class="text-2xl font-bold text-orange-600" id="trainingTime">00:00:00</div>
+                            <div class="text-sm text-gray-600">训练时长</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 进度条 -->
+                <div class="bg-white rounded-xl shadow-md p-6">
+                    <h3 class="text-lg font-semibold text-gray-800 mb-3">训练进度</h3>
+                    <div class="w-full bg-gray-200 rounded-full h-4 overflow-hidden">
+                        <div class="bg-gradient-to-r from-purple-500 to-pink-500 h-4 rounded-full transition-all duration-500" 
+                             id="progressBar" style="width: 0%"></div>
+                    </div>
+                    <div class="text-sm text-gray-600 mt-2 text-right" id="progressText">0%</div>
+                </div>
+
+                <!-- 训练日志 -->
+                <div class="bg-white rounded-xl shadow-md p-6">
+                    <h2 class="text-xl font-bold text-gray-800 mb-4 flex items-center">
+                        <span class="bg-gradient-to-r from-blue-500 to-cyan-500 text-white rounded-lg p-2 mr-3">📝</span>
+                        训练日志
+                    </h2>
+                    <div class="bg-gray-900 rounded-lg p-4 h-96 overflow-y-auto custom-scrollbar font-mono text-sm" id="logContainer">
+                        <div class="text-green-400">> 等待开始训练...</div>
+                    </div>
+                </div>
+
+                <!-- Loss曲线图 -->
+                <div class="bg-white rounded-xl shadow-md p-6">
+                    <h2 class="text-xl font-bold text-gray-800 mb-4 flex items-center">
+                        <span class="bg-gradient-to-r from-blue-500 to-blue-600 text-white rounded-lg p-2 mr-3">📈</span>
+                        Training Loss Curve
+                    </h2>
+                    <div class="h-96 bg-white rounded-lg border border-gray-200 p-4">
+                        <canvas id="lossChart"></canvas>
+                    </div>
+                    <div class="mt-3 text-xs text-gray-500 text-center">
+                        <span class="inline-block">
+                            <span class="inline-block w-3 h-3 rounded-full bg-blue-600 mr-1"></span>
+                            训练损失
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 模型导出标签页 -->
+        <div id="exportContent" class="tab-content hidden">
+            <div class="grid grid-cols-1 gap-6">
+                <div class="bg-white rounded-xl shadow-md p-6">
+                    <h2 class="text-xl font-bold text-gray-800 mb-4 flex items-center">
+                        <span class="bg-gradient-to-r from-purple-500 to-pink-500 text-white rounded-lg p-2 mr-3">💾</span>
+                        模型导出配置
+                    </h2>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">导出格式</label>
+                            <select id="exportFormat" class="input-field w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent">
+                                <option value="huggingface">HuggingFace</option>
+                                <option value="gguf">GGUF</option>
+                                <option value="vllm">vLLM</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">导出路径</label>
+                            <input type="text" id="exportPath" placeholder="exports/emergency-llm" 
+                                   class="input-field w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">检查点路径</label>
+                            <input type="text" id="checkpointPath" placeholder="saves/checkpoint-1000" 
+                                   class="input-field w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">量化精度</label>
+                            <select id="exportQuantization" class="input-field w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent">
+                                <option value="none">不量化</option>
+                                <option value="8bit">8-bit</option>
+                                <option value="4bit">4-bit</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="mt-6 flex gap-4">
+                        <button onclick="exportModel()" 
+                                class="flex-1 px-6 py-3 btn-primary text-white rounded-lg font-medium">
+                            📦 导出模型
+                        </button>
+                        <button onclick="mergeAdapters()" 
+                                class="flex-1 px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition font-medium">
+                            🔗 合并适配器
+                        </button>
+                    </div>
+                </div>
+
+                <!-- 导出日志 -->
+                <div class="bg-white rounded-xl shadow-md p-6">
+                    <h2 class="text-xl font-bold text-gray-800 mb-4">导出日志</h2>
+                    <div class="bg-gray-900 rounded-lg p-4 h-64 overflow-y-auto custom-scrollbar font-mono text-sm" id="exportLogContainer">
+                        <div class="text-green-400">> 等待导出操作...</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Chart.js库 -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    
+    <script>
+        // 全局变量
+        let trainingInterval = null;
+        let trainingStartTime = null;
+        let lossChart = null;
+        let lossData = [];
+        let lossSteps = [];
+
+        // 初始化Loss图表（模仿LLaMA-Factory样式）
+        function initLossChart() {
+            const ctx = document.getElementById('lossChart').getContext('2d');
+            lossChart = new Chart(ctx, {
+                type: 'scatter',  // 使用 scatter 类型支持 {x, y} 数据格式
+                data: {
+                    datasets: [
+                        {
+                            label: 'loss',
+                            data: [],
+                            borderColor: 'rgb(31, 119, 180)',  // LLaMA-Factory 蓝色
+                            backgroundColor: 'rgba(31, 119, 180, 0.1)',
+                            borderWidth: 2.5,
+                            pointRadius: 0,  // 不显示点
+                            pointHoverRadius: 4,
+                            showLine: true,  // scatter 类型需要显式启用线条
+                            tension: 0,  // 直线
+                            fill: false
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    animation: {
+                        duration: 0  // 禁用动画，提高性能
+                    },
+                    interaction: {
+                        intersect: false,
+                        mode: 'index'
+                    },
+                    plugins: {
+                        legend: {
+                            display: true,
+                            position: 'top',
+                            align: 'start',
+                            labels: {
+                                boxWidth: 40,
+                                boxHeight: 2,
+                                padding: 10,
+                                font: {
+                                    size: 11,
+                                    family: 'Arial, sans-serif'
+                                }
+                            }
+                        },
+                        title: {
+                            display: false
+                        },
+                        tooltip: {
+                            enabled: true,
+                            mode: 'index',
+                            intersect: false
+                        }
+                    },
+                    scales: {
+                        x: {
+                            type: 'linear',
+                            display: true,
+                            title: {
+                                display: true,
+                                text: 'step',
+                                font: {
+                                    size: 11,
+                                    family: 'Arial, sans-serif'
+                                }
+                            },
+                            grid: {
+                                display: true,
+                                drawBorder: true,
+                                color: 'rgba(0, 0, 0, 0.1)',
+                                lineWidth: 1
+                            },
+                            ticks: {
+                                font: {
+                                    size: 10
+                                },
+                                maxTicksLimit: 10,  // matplotlib 默认约10个刻度
+                                autoSkip: true,
+                                autoSkipPadding: 10
+                            },
+                            // 从数据最小值开始（通常是step 0或第一个step）
+                            min: undefined,
+                            max: undefined,
+                            // 减少边距，让起点更贴近坐标轴
+                            grace: '2%'
+                        },
+                        y: {
+                            type: 'linear',
+                            display: true,
+                            title: {
+                                display: true,
+                                text: 'loss',
+                                font: {
+                                    size: 11,
+                                    family: 'Arial, sans-serif'
+                                }
+                            },
+                            beginAtZero: false,  // 不从0开始，从数据最小值开始
+                            grid: {
+                                display: true,
+                                drawBorder: true,
+                                color: 'rgba(0, 0, 0, 0.1)',
+                                lineWidth: 1
+                            },
+                            ticks: {
+                                font: {
+                                    size: 10
+                                },
+                                maxTicksLimit: 10,  // matplotlib 默认约10个刻度
+                                autoSkip: true,
+                                autoSkipPadding: 10
+                            },
+                            // 自动计算范围，类似 matplotlib
+                            min: undefined,
+                            max: undefined,
+                            // Y轴添加5%边距以留出空间
+                            grace: '5%'
+                        }
+                    }
+                }
+            });
+        }
+
+        // 切换标签页
+        function switchTab(tabName) {
+            // 隐藏所有内容
+            document.querySelectorAll('.tab-content').forEach(content => {
+                content.classList.add('hidden');
+            });
+            
+            // 移除所有标签的active状态
+            document.querySelectorAll('.tab-button').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            
+            // 显示选中的内容
+            document.getElementById(tabName + 'Content').classList.remove('hidden');
+            document.getElementById(tabName + 'Tab').classList.add('active');
+        }
+
+        // 收集训练配置
+        function collectConfig() {
+            // 获取数据集：优先使用手动输入，如果为空则使用选中的数据集
+            const manualDatasets = document.getElementById('dataset').value.trim();
+            let datasets = [];
+            
+            if (manualDatasets) {
+                // 手动输入的数据集
+                datasets = manualDatasets.split(',').map(s => s.trim()).filter(s => s);
+            } else if (selectedDatasets.size > 0) {
+                // 复选框选中的数据集
+                datasets = Array.from(selectedDatasets);
+            }
+            
+            return {
+                // 模型配置
+                model_name: document.getElementById('modelName').value,
+                model_path: document.getElementById('modelPath').value,
+                finetuning_type: document.getElementById('finetuningType').value,
+                quantization_bit: document.getElementById('quantizationBit').value,
+                template: document.getElementById('template').value,
+                booster: document.getElementById('booster').value,
+                
+                // 数据配置
+                training_stage: document.getElementById('trainingStage').value,
+                dataset_dir: document.getElementById('datasetDir').value,
+                dataset: datasets,
+                
+                // 基础参数
+                learning_rate: parseFloat(document.getElementById('learningRate').value),
+                num_train_epochs: parseFloat(document.getElementById('numTrainEpochs').value),
+                max_grad_norm: parseFloat(document.getElementById('maxGradNorm').value),
+                cutoff_len: parseInt(document.getElementById('cutoffLen').value),
+                batch_size: parseInt(document.getElementById('batchSize').value),
+                gradient_accumulation_steps: parseInt(document.getElementById('gradientAccumulation').value),
+                val_size: parseFloat(document.getElementById('valSize').value),
+                lr_scheduler_type: document.getElementById('lrScheduler').value,
+                compute_type: document.getElementById('computeType').value,
+                
+                // LoRA配置
+                lora_rank: parseInt(document.getElementById('loraRank').value),
+                lora_alpha: parseInt(document.getElementById('loraAlpha').value),
+                lora_dropout: parseFloat(document.getElementById('loraDropout').value),
+                lora_target: document.getElementById('loraTarget').value,
+                use_rslora: document.getElementById('useRslora').checked,
+                use_dora: document.getElementById('useDora').checked,
+                
+                // 高级选项
+                logging_steps: parseInt(document.getElementById('loggingSteps').value),
+                save_steps: parseInt(document.getElementById('saveSteps').value),
+                warmup_steps: parseInt(document.getElementById('warmupSteps').value),
+                output_dir: document.getElementById('outputDir').value,
+                ds_stage: document.getElementById('dsStage').value,
+                ds_offload: document.getElementById('dsOffload').checked,
+                report_to: document.getElementById('reportTo').value,
+                packing: document.getElementById('packing').checked,
+                train_on_prompt: document.getElementById('trainOnPrompt').checked,
+                resize_vocab: document.getElementById('resizeVocab').checked,
+            };
+        }
+
+        // 预览配置
+        function previewConfig() {
+            const config = collectConfig();
+            alert('训练配置预览:\n\n' + JSON.stringify(config, null, 2));
+            console.log('Training Config:', config);
+        }
+
+        // 保存配置
+        function saveConfig() {
+            const config = collectConfig();
+            const configJson = JSON.stringify(config, null, 2);
+            
+            // 创建下载链接
+            const blob = new Blob([configJson], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'training_config.json';
+            a.click();
+            URL.revokeObjectURL(url);
+            
+            addLog('配置已保存到 training_config.json');
+        }
+
+        // 加载配置
+        function loadConfig() {
+            const input = document.createElement('input');
+            input.type = 'file';
+            input.accept = '.json';
+            input.onchange = (e) => {
+                const file = e.target.files[0];
+                const reader = new FileReader();
+                reader.onload = (event) => {
+                    try {
+                        const config = JSON.parse(event.target.result);
+                        // 填充表单
+                        Object.keys(config).forEach(key => {
+                            const element = document.getElementById(key.replace(/_([a-z])/g, (g) => g[1].toUpperCase()));
+                            if (element) {
+                                if (element.type === 'checkbox') {
+                                    element.checked = config[key];
+                                } else if (Array.isArray(config[key])) {
+                                    element.value = config[key].join(', ');
+                                } else {
+                                    element.value = config[key];
+                                }
+                            }
+                        });
+                        addLog('配置加载成功');
+                    } catch (error) {
+                        alert('配置文件格式错误: ' + error.message);
+                    }
+                };
+                reader.readAsText(file);
+            };
+            input.click();
+        }
+
+        // 开始训练
+        async function startTraining() {
+            const config = collectConfig();
+            
+            // 验证必填项
+            if (!config.model_name || !config.model_path) {
+                alert('请填写模型名称和模型路径！');
+                return;
+            }
+            
+            if (!config.dataset || config.dataset.length === 0) {
+                alert('请选择至少一个数据集！');
+                return;
+            }
+            
+            // 更新UI状态
+            document.getElementById('startBtn').disabled = true;
+            document.getElementById('stopBtn').disabled = false;
+            document.getElementById('statusIndicator').className = 'status-indicator status-training';
+            document.getElementById('statusText').textContent = '训练中';
+            
+            // 切换到监控标签页
+            switchTab('monitor');
+            
+            // 清空日志和图表
+            document.getElementById('logContainer').innerHTML = '';
+            lossData = [];
+            lossSteps = [];
+            if (lossChart) {
+                lossChart.data.datasets[0].data = [];
+                lossChart.update();
+            }
+            
+            addLog('正在初始化训练...');
+            addLog('训练配置: ' + JSON.stringify(config, null, 2));
+            
+            try {
+                // 调用后端API开始训练
+                const response = await fetch('/api/train/start', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(config)
+                });
+                
+                if (!response.ok) {
+                    throw new Error('启动训练失败');
+                }
+                
+                const result = await response.json();
+                addLog('训练已启动，任务ID: ' + result.task_id);
+                
+                // 开始监控训练状态
+                trainingStartTime = Date.now();
+                startMonitoring(result.task_id);
+                
+            } catch (error) {
+                addLog('错误: ' + error.message, 'error');
+                resetTrainingUI();
+            }
+        }
+
+        // 停止训练
+        async function stopTraining() {
+            try {
+                const response = await fetch('/api/train/stop', {
+                    method: 'POST'
+                });
+                
+                if (response.ok) {
+                    addLog('训练已停止');
+                    resetTrainingUI();
+                }
+            } catch (error) {
+                addLog('停止训练失败: ' + error.message, 'error');
+            }
+        }
+
+        // 开始监控训练状态
+        function startMonitoring(taskId) {
+            trainingInterval = setInterval(async () => {
+                try {
+                    const response = await fetch('/api/train/status?task_id=' + taskId);
+                    const status = await response.json();
+                    
+                    // 更新训练状态
+                    updateTrainingStatus(status);
+                    
+                    // 如果训练完成或出错，停止监控
+                    if (status.status === 'completed' || status.status === 'error') {
+                        clearInterval(trainingInterval);
+                        resetTrainingUI();
+                        
+                        if (status.status === 'completed') {
+                            addLog('训练完成！');
+                            document.getElementById('statusIndicator').className = 'status-indicator status-idle';
+                            document.getElementById('statusText').textContent = '完成';
+                        } else {
+                            addLog('训练出错: ' + status.error, 'error');
+                            document.getElementById('statusIndicator').className = 'status-indicator status-error';
+                            document.getElementById('statusText').textContent = '错误';
+                        }
+                    }
+                } catch (error) {
+                    console.error('获取训练状态失败:', error);
+                }
+            }, 2000); // 每2秒更新一次
+        }
+
+        // 更新训练状态显示
+        function updateTrainingStatus(status) {
+            if (status.epoch !== undefined) {
+                document.getElementById('currentEpoch').textContent = status.epoch;
+            }
+            if (status.step !== undefined) {
+                document.getElementById('currentStep').textContent = status.step;
+            }
+            if (status.loss !== undefined) {
+                document.getElementById('currentLoss').textContent = status.loss.toFixed(4);
+                
+                // 更新Loss图表（模仿LLaMA-Factory：原始+平滑）
+                // 注意：使用 !== undefined 而不是直接判断，这样 step 0 也会被处理
+                if (lossChart && status.step !== undefined) {
+                    // 只在step变化时才添加新数据点，避免重复
+                    const lastStep = lossSteps.length > 0 ? lossSteps[lossSteps.length - 1] : -1;
+                    
+                    if (status.step !== lastStep) {
+                        // 添加新的数据点
+                        lossSteps.push(status.step);
+                        lossData.push(status.loss);
+                        
+                        // 限制数据点数量（保留最近300个点）
+                        const maxPoints = 300;
+                        if (lossSteps.length > maxPoints) {
+                            lossSteps.shift();
+                            lossData.shift();
+                        }
+                    } else {
+                        // 如果是相同的step，更新最后一个数据点的loss值（取最新的）
+                        if (lossData.length > 0) {
+                            lossData[lossData.length - 1] = status.loss;
+                        }
+                    }
+                    
+                    // 转换为 {x, y} 格式，支持线性坐标轴
+                    const chartData = lossSteps.map((step, i) => ({
+                        x: step,
+                        y: lossData[i]
+                    }));
+                    
+                    // 更新图表数据
+                    lossChart.data.datasets[0].data = chartData;
+                    
+                    // 更新图表（不使用动画）
+                    lossChart.update('none');
+                }
+            }
+            if (status.progress !== undefined) {
+                const progress = Math.round(status.progress * 100);
+                document.getElementById('progressBar').style.width = progress + '%';
+                document.getElementById('progressText').textContent = progress + '%';
+            }
+            
+            // 更新训练时长
+            if (trainingStartTime) {
+                const elapsed = Date.now() - trainingStartTime;
+                const hours = Math.floor(elapsed / 3600000);
+                const minutes = Math.floor((elapsed % 3600000) / 60000);
+                const seconds = Math.floor((elapsed % 60000) / 1000);
+                document.getElementById('trainingTime').textContent = 
+                    `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+            }
+            
+            // 添加新日志
+            if (status.logs && status.logs.length > 0) {
+                status.logs.forEach(log => addLog(log));
+            }
+        }
+
+        // 重置训练UI状态
+        function resetTrainingUI() {
+            document.getElementById('startBtn').disabled = false;
+            document.getElementById('stopBtn').disabled = true;
+            if (trainingInterval) {
+                clearInterval(trainingInterval);
+                trainingInterval = null;
+            }
+        }
+
+        // 添加日志
+        function addLog(message, type = 'info') {
+            const logContainer = document.getElementById('logContainer');
+            const logEntry = document.createElement('div');
+            
+            const timestamp = new Date().toLocaleTimeString();
+            let color = 'text-green-400';
+            let prefix = '>';
+            
+            if (type === 'error') {
+                color = 'text-red-400';
+                prefix = '✗';
+            } else if (type === 'warning') {
+                color = 'text-yellow-400';
+                prefix = '⚠';
+            } else if (type === 'success') {
+                color = 'text-blue-400';
+                prefix = '✓';
+            }
+            
+            logEntry.className = color;
+            logEntry.textContent = `[${timestamp}] ${prefix} ${message}`;
+            
+            logContainer.appendChild(logEntry);
+            logContainer.scrollTop = logContainer.scrollHeight;
+        }
+
+        // 导出模型
+        async function exportModel() {
+            const config = {
+                format: document.getElementById('exportFormat').value,
+                export_path: document.getElementById('exportPath').value,
+                checkpoint_path: document.getElementById('checkpointPath').value,
+                quantization: document.getElementById('exportQuantization').value
+            };
+            
+            // 验证必填参数
+            if (!config.checkpoint_path || !config.checkpoint_path.trim()) {
+                addExportLog('❌ 错误: 请填写检查点路径', 'error');
+                alert('请填写检查点路径！');
+                return;
+            }
+            
+            if (!config.export_path || !config.export_path.trim()) {
+                addExportLog('❌ 错误: 请填写导出路径', 'error');
+                alert('请填写导出路径！');
+                return;
+            }
+            
+            addExportLog('开始导出模型...');
+            addExportLog('导出配置: ' + JSON.stringify(config, null, 2));
+            
+            try {
+                const response = await fetch('/api/export', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(config)
+                });
+                
+                if (!response.ok) {
+                    throw new Error('导出失败');
+                }
+                
+                const result = await response.json();
+                addExportLog('导出成功: ' + result.message);
+                
+            } catch (error) {
+                addExportLog('导出失败: ' + error.message, 'error');
+            }
+        }
+
+        // 合并适配器
+        async function mergeAdapters() {
+            const checkpointPath = document.getElementById('checkpointPath').value.trim();
+            const exportPath = document.getElementById('exportPath').value.trim();
+            
+            // 验证必填参数
+            if (!checkpointPath) {
+                addExportLog('❌ 错误: 请填写检查点路径', 'error');
+                alert('请填写检查点路径！');
+                return;
+            }
+            
+            if (!exportPath) {
+                addExportLog('❌ 错误: 请填写导出路径', 'error');
+                alert('请填写导出路径！');
+                return;
+            }
+            
+            addExportLog('开始合并LoRA适配器...');
+            addExportLog(`检查点路径: ${checkpointPath}`);
+            addExportLog(`导出路径: ${exportPath}`);
+            
+            try {
+                const response = await fetch('/api/merge', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        checkpoint_path: checkpointPath,
+                        export_path: exportPath
+                    })
+                });
+                
+                if (!response.ok) {
+                    throw new Error('合并失败');
+                }
+                
+                const result = await response.json();
+                addExportLog('合并成功: ' + result.message);
+                
+            } catch (error) {
+                addExportLog('合并失败: ' + error.message, 'error');
+            }
+        }
+
+        // 添加导出日志
+        function addExportLog(message, type = 'info') {
+            const logContainer = document.getElementById('exportLogContainer');
+            const logEntry = document.createElement('div');
+            
+            const timestamp = new Date().toLocaleTimeString();
+            let color = 'text-green-400';
+            let prefix = '>';
+            
+            if (type === 'error') {
+                color = 'text-red-400';
+                prefix = '✗';
+            }
+            
+            logEntry.className = color;
+            logEntry.textContent = `[${timestamp}] ${prefix} ${message}`;
+            
+            logContainer.appendChild(logEntry);
+            logContainer.scrollTop = logContainer.scrollHeight;
+        }
+
+        // 全局变量：已选中的数据集
+        let selectedDatasets = new Set();
+        let datasetListVisible = false;
+
+        // 切换数据集列表显示/隐藏
+        function toggleDatasetList() {
+            const container = document.getElementById('datasetListContainer');
+            const icon = document.getElementById('datasetDropdownIcon');
+            
+            if (datasetListVisible) {
+                // 隐藏列表
+                container.classList.add('hidden');
+                icon.classList.remove('rotate-180');
+                datasetListVisible = false;
+            } else {
+                // 显示列表
+                container.classList.remove('hidden');
+                icon.classList.add('rotate-180');
+                datasetListVisible = true;
+                
+                // 如果列表还没有加载，则加载
+                if (container.innerHTML.includes('正在加载')) {
+                    loadDatasetList();
+                }
+            }
+        }
+
+        // 隐藏数据集列表
+        function hideDatasetList() {
+            const container = document.getElementById('datasetListContainer');
+            const icon = document.getElementById('datasetDropdownIcon');
+            container.classList.add('hidden');
+            icon.classList.remove('rotate-180');
+            datasetListVisible = false;
+        }
+
+        // 加载数据集列表
+        async function loadDatasetList() {
+            const datasetDir = document.getElementById('datasetDir').value.trim();
+            const container = document.getElementById('datasetListContainer');
+            
+            if (!datasetDir) {
+                container.innerHTML = '<p class="text-sm text-gray-500">请输入数据集目录</p>';
+                return;
+            }
+            
+            // 显示加载中
+            container.innerHTML = '<p class="text-sm text-gray-500 text-center py-4">⏳ 正在加载数据集列表...</p>';
+            
+            try {
+                const response = await fetch(`/api/datasets?dataset_dir=${encodeURIComponent(datasetDir)}`);
+                const result = await response.json();
+                
+                if (!response.ok || !result.success) {
+                    container.innerHTML = `<p class="text-sm text-red-500 text-center py-4">⚠️ ${result.message || result.error || '加载失败'}</p>`;
+                    return;
+                }
+                
+                if (!result.datasets || result.datasets.length === 0) {
+                    container.innerHTML = '<p class="text-sm text-gray-500 text-center py-4">📭 该目录下没有可用的数据集</p>';
+                    return;
+                }
+                
+                // 渲染数据集列表（带复选框）
+                let html = '<div class="space-y-1">';
+                
+                result.datasets.forEach(dataset => {
+                    const datasetName = typeof dataset === 'string' ? dataset : dataset.name;
+                    const isChecked = selectedDatasets.has(datasetName);
+                    const formatting = dataset.formatting || '';
+                    
+                    html += `
+                        <label class="flex items-center space-x-2 hover:bg-blue-50 p-2 rounded cursor-pointer transition">
+                            <input type="checkbox" 
+                                   class="dataset-checkbox rounded text-purple-600 focus:ring-purple-500" 
+                                   value="${datasetName}"
+                                   ${isChecked ? 'checked' : ''}
+                                   onchange="updateSelectedDatasets()">
+                            <span class="text-sm text-gray-700 flex-1">${datasetName}</span>
+                            ${formatting ? `<span class="text-xs text-gray-500 bg-blue-100 px-2 py-0.5 rounded">${formatting}</span>` : ''}
+                        </label>
+                    `;
+                });
+                
+                html += '</div>';
+                html += `<div class="mt-3 pt-3 border-t flex justify-between items-center">
+                            <p class="text-xs text-gray-500">共 ${result.total} 个数据集</p>
+                            <button onclick="hideDatasetList()" class="text-xs text-blue-600 hover:text-blue-800">关闭</button>
+                         </div>`;
+                
+                container.innerHTML = html;
+                
+            } catch (error) {
+                console.error('加载数据集列表失败:', error);
+                container.innerHTML = `<p class="text-sm text-red-500 text-center py-4">⚠️ 加载失败: ${error.message}</p>`;
+            }
+        }
+
+        // 更新已选择的数据集（从复选框同步到输入框）
+        function updateSelectedDatasets() {
+            const checkboxes = document.querySelectorAll('.dataset-checkbox');
+            selectedDatasets.clear();
+            
+            checkboxes.forEach(checkbox => {
+                if (checkbox.checked) {
+                    selectedDatasets.add(checkbox.value);
+                }
+            });
+            
+            // 更新显示框
+            document.getElementById('dataset').value = Array.from(selectedDatasets).join(', ');
+        }
+
+        // 同步数据集选择（从输入框同步到复选框）
+        function syncDatasetSelection() {
+            const inputValue = document.getElementById('dataset').value.trim();
+            
+            // 解析输入的数据集名称
+            const inputDatasets = inputValue
+                .split(',')
+                .map(s => s.trim())
+                .filter(s => s);
+            
+            // 更新 selectedDatasets
+            selectedDatasets.clear();
+            inputDatasets.forEach(name => selectedDatasets.add(name));
+            
+            // 更新复选框状态
+            const checkboxes = document.querySelectorAll('.dataset-checkbox');
+            checkboxes.forEach(checkbox => {
+                checkbox.checked = selectedDatasets.has(checkbox.value);
+            });
+        }
+
+        // 点击外部区域关闭下拉列表
+        document.addEventListener('click', function(event) {
+            const container = document.getElementById('datasetListContainer');
+            const input = document.getElementById('dataset');
+            
+            // 如果点击的不是输入框也不是下拉列表内部，则关闭列表
+            if (container && input && 
+                !container.contains(event.target) && 
+                event.target !== input &&
+                datasetListVisible) {
+                hideDatasetList();
+            }
+        });
+
+        // 页面加载时初始化
+        window.addEventListener('DOMContentLoaded', () => {
+            initLossChart();
+            
+            // 模拟初始化成功
+            setTimeout(() => {
+                addLog('Emergency-LLM 微调平台已就绪', 'success');
+                addLog('请配置训练参数并开始训练', 'info');
+            }, 500);
+            
+            // 预加载默认数据集目录的数据集列表（后台加载，不显示）
+            loadDatasetList();
+        });
+    </script>
+</body>
+</html>
+
+
